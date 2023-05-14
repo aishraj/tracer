@@ -1,4 +1,7 @@
+mod vec;
 use std::io::{stderr, Write};
+
+use crate::vec::Color;
 
 fn main() {
     const IMAGE_WIDTH: u64 = 256;
@@ -15,11 +18,9 @@ fn main() {
             let g = (j as f64) / ((IMAGE_HEIGHT - 1) as f64);
             let b = 0.25;
 
-            let ir = (255.999 * r) as u64;
-            let ig = (255.999 * g) as u64;
-            let ib = (255.999 * b) as u64;
+            let pixel_color = Color::new(r, g, b);
 
-            println!("{} {} {}", ir, ig, ib);
+            println!("{}", pixel_color.format_color());
         }
     }
     eprintln!("Done.");
