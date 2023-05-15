@@ -17,12 +17,12 @@ use crate::camera::Camera;
 use crate::sphere::Sphere;
 
 fn ray_color(r: &Ray, world: &World, depth: u64) -> Color {
-    if depth <= 0 {1
+    if depth <= 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
     if let Some(rec) = world.hit(r, 0.00, f64::INFINITY) {
-        let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
+        let target = rec.p + rec.normal + Vec3::random_in_unit_sphere().normalized();
         let r = Ray::new(rec.p, target - rec.p);
         0.5 * ray_color(&r, world, depth - 1)
     } else {
