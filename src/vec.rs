@@ -30,12 +30,23 @@ impl Vec3 {
         self[2]
     }
 
+    pub fn reflect(self, n: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(n) * n
+    }
+
     pub fn dot(self, other: Vec3) -> f64 {
         self[0] * other[0] + self[1] * other[1] + self[2] * other[2]
     }
 
     pub fn length(self) -> f64 {
         self.dot(self).sqrt()
+    }
+
+    pub fn refract(self, n: Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = ((-1.0) * self).dot(n).min(1.0);
+        let r_out_perp = etai_over_etat * (self + cos_theta * n);
+        let r_out_parallel = -(1.0 - r_out_perp.length().powi(2)).abs().sqrt() * n;
+        r_out_perp + r_out_parallel
     }
 
     pub fn cross(self, other: Vec3) -> Vec3 {
@@ -69,6 +80,17 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+
+        loop {
+            let p = Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
+            if p.length() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn normalized(self) -> Vec3 {
         self / self.length()
     }
@@ -89,6 +111,11 @@ impl Vec3 {
 
         format!("{} {} {}", ir, ig, ib)
     }
+
+    pub fn near_zero(self) -> bool {
+        const EPS: f64 = 1.0e-8;
+        self[0].abs() < EPS && self[1].abs() < EPS && self[2].abs() < EPS
+    }
 }
 
 impl Display for Vec3 {
@@ -108,6 +135,16 @@ impl Index<usize> for Vec3 {
 impl IndexMut<usize> for Vec3 {
     fn index_mut(&mut self, index: usize) -> &mut f64 {
         &mut self.e[index]
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        Vec3 {
+            e: [self * other[0], self * other[1], self * other[2]],
+        }
     }
 }
 
@@ -162,16 +199,6 @@ impl MulAssign<f64> for Vec3 {
         *self = Vec3 {
             e: [self[0] * other, self[1] * other, self[2] * other],
         };
-    }
-}
-
-impl Mul<Vec3> for f64 {
-    type Output = Vec3;
-
-    fn mul(self, other: Vec3) -> Vec3 {
-        Vec3 {
-            e: [self * other[0], self * other[1], self * other[2]],
-        }
     }
 }
 

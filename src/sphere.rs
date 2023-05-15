@@ -1,17 +1,22 @@
-use super::hit::{Hit, HitRecord};
-use super::ray::Ray;
-use super::vec::{Point3, Vec3};
+use std::sync::Arc;
+
+use crate::hit::{Hit, HitRecord};
+use crate::material::Scatter;
+use crate::ray::Ray;
+use crate::vec::{Point3, Vec3};
 
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    mat: Arc<dyn Scatter>,
 }
 
 impl Sphere {
-    pub fn new(cen: Point3, r: f64) -> Sphere {
+    pub fn new(center: Point3, radius: f64, mat: Arc<dyn Scatter>) -> Self {
         Sphere {
-            center: cen,
-            radius: r,
+            center,
+            radius,
+            mat,
         }
     }
 }
@@ -41,6 +46,7 @@ impl Hit for Sphere {
         let mut rec = HitRecord {
             t: root,
             p: r.at(root),
+            mat: Arc::clone(&self.mat),
             normal: Vec3::new(0.0, 0.0, 0.0),
             front_face: false,
         };
